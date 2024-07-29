@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["denispodshivalov <denpodshivalov091@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ruff = "^0.3.0"
+selenium-stealth = "^1.0.6"
+requests = "^2.32.3"
+dependency-injector = "^4.41.0"
+selenium = "^4.23.1"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+indent-width = 4
+show-fixes = true
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+select = [
+    "E",
+    "F",
+    "UP",
+    "I",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-line-length = "dynamic"

@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+
+    web:
+      build: .
+      image: web-stripe-price
+      container_name: web_stripe_price
+      entrypoint: /bin/bash /stripe-price/scripts/entrypoint.sh
+      env_file: .env
+      ports:
+      - "8000:8000"
