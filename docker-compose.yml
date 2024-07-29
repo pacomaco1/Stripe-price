@@ -8,4 +8,4 @@ services:
       entrypoint: /bin/bash /stripe-price/scripts/entrypoint.sh
       env_file: .env
       ports:
-      - "8000:8000"
+      - "58733:58733"

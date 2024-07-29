@@ -1,7 +1,53 @@
-from src.main.depends import container
+import logging
+import signal
+import sys
 
-url = 'https://checkout.stripe.com/c/pay/cs_live_b1pYe4yZJVn3xdd0eJNk7YQLVj1WNQQtSL9XFjTYuvBLaMIfxbWLyS3zZx#fidkdWxOYHwnPyd1blppbHNgWjA0SXJiPUtPS000NlRnbnJwfWJSVUBiMTVhYHFdMVUyMVZjczUwVG11aGldNlB1dzE1bEBiXF89YGBCbkJEX09udm1VT3dMPU9qaGFnQjBqTTJoY0NONVU2NTVEMFZLMn09fCcpJ2hsYXYnP34naHBsYSc%2FJ2cwNGc8NmdhKGEwMTMoMWM9MihkMTFnKGdjNTU3MTQ9NTNnMDBkNzU9ZCcpJ3ZsYSc%2FJz03YTVjNDM9KGdkNGMoMWcyZCg8ZmFkKGBkYTJhNDM9YTM2Y2NmNzY3MicpJ2JwbGEnPyc1PWRhZjxmZChjNmQxKDFkM2AoZz00MSgxNjEzZGdnNmQ1MGY9NTMzNjwneCknZ2BxZHYnP15YKSdpZHxqcHFRfHVgJz8naHBpcWxabHFgaCcpJ3dgY2B3d2B3SndsYmxrJz8nbXFxdXY%2FKipkdXUraWBqa2R3YWorZGwneCUl'
-r = container.get_stripe_payment_data_from_url_use_case()(
-    url=url
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from src.controllers import (
+    stripe_payments_controller,
 )
-print(r)
+from src.controllers.middleware.log_middleware import LogMiddleware
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.add_middleware(LogMiddleware)
+app.include_router(stripe_payments_controller.router)
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+
+def graceful_shutdown(signum, frame) -> None:
+    logging.info("Gracefully shutting down the server")
+    uvicorn_server.should_exit = True
+    uvicorn_server.force_exit = True
+    sys.exit(0)
+
+
+def run_server() -> None:
+    global uvicorn_server
+    uvicorn_config = uvicorn.Config(
+        app=app,
+        host="0.0.0.0",
+        port=58733,
+        log_level="info",
+    )
+    uvicorn_server = uvicorn.Server(uvicorn_config)
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+    logging.info("Starting Uvicorn server")
+    uvicorn_server.run()
